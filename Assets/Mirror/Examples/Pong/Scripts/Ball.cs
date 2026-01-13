@@ -65,5 +65,15 @@ namespace Mirror.Examples.Pong
 #endif
             }
         }
+        void FixedUpdate()
+        {
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+
+            if (rb.linearVelocity.magnitude < 7f)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * 8f;
+            }
+        }
+
     }
 }
