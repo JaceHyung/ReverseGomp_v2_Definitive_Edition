@@ -63,28 +63,27 @@ public class MatchController : NetworkBehaviour
     }
 
     // =========================
-    // REMATCH – KLIK UI (KLIENT)
+    // WYJŒCIE Z GRY
     // =========================
-    public void OnRematchClicked()
+    public void OnExitGameClicked()
     {
-        if (!isClient) return;
-        CmdVoteForRematch();
+        Debug.Log("Wyjœcie z gry klikniête!");
+        Application.Quit();
     }
 
     // =========================
-    // REMATCH – G£OS (SERWER)
+    // REMATCH – REJESTRACJA G£OSU (SERWER)
     // =========================
-    [Command]
-    void CmdVoteForRematch()
+    [Server]
+    public void RegisterRematchVote()
     {
         rematchVotes++;
 
         if (rematchVotes >= NetworkServer.connections.Count)
         {
+            rematchVotes = 0;
             Time.timeScale = 1f;
-            NetworkManager.singleton.ServerChangeScene(
-                NetworkManager.singleton.onlineScene
-            );
+            NetworkManager.singleton.ServerChangeScene(NetworkManager.singleton.onlineScene);
         }
     }
 
@@ -97,11 +96,10 @@ public class MatchController : NetworkBehaviour
         playersAlive = players;
         rematchVotes = 0;
     }
-    
+
     [ClientRpc]
     void RpcHideEndGame()
     {
         endGameCanvas.SetActive(false);
     }
-
 }

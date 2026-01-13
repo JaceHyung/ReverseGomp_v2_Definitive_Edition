@@ -12,11 +12,26 @@ namespace Mirror.Examples.Pong
         [SyncVar]
         public int health = 5;
 
+        public void OnRematchClicked()
+        {
+            if (!isLocalPlayer)
+                return;
+
+            CmdVoteForRematch();
+        }
+
+        [Command]
+        void CmdVoteForRematch()
+        {
+            // Przekazujemy serwerowi, aby policzy≥ g≥os przez MatchController
+            if (MatchController.instance != null)
+            {
+                MatchController.instance.RegisterRematchVote();
+            }
+        }
+
         public override void OnStartLocalPlayer()
         {
-            // znajdü obiekt HealthText w scenie
-            healthText = GameObject.Find("HealthText").GetComponent<TextMeshProUGUI>();
-            
             GameObject ui = GameObject.Find("HealthText");
             if (ui != null)
             {
@@ -28,6 +43,7 @@ namespace Mirror.Examples.Pong
                 Debug.LogError("Nie znaleziono obiektu HealthText w scenie!");
             }
         }
+
         // need to use FixedUpdate for rigidbody
 
         void FixedUpdate()
@@ -53,7 +69,6 @@ namespace Mirror.Examples.Pong
         {
             MatchController.instance.PlayerDied(gameObject);
             NetworkServer.Destroy(gameObject);
-
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
