@@ -1,45 +1,48 @@
 using UnityEngine;
-
-/*
-	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
-	API Reference: https://mirror-networking.com/docs/api/Mirror.NetworkManager.html
-*/
+using Mirror;
 
 namespace Mirror.Examples.Pong
 {
-    // Custom NetworkManager that simply assigns the correct racket positions when
-    // spawning players. The built in RoundRobin spawn method wouldn't work after
-    // someone reconnects (both players would be on the same side).
     [AddComponentMenu("")]
     public class NetworkManagerPong : NetworkManager
     {
         public Transform leftRacketSpawn;
         public Transform rightRacketSpawn;
-        GameObject ball;
+
+        private GameObject ball;
 
         public override void OnServerAddPlayer(NetworkConnectionToClient conn)
         {
-            // add player at correct spawn position
             Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
             GameObject player = Instantiate(playerPrefab, start.position, start.rotation);
             NetworkServer.AddPlayerForConnection(conn, player);
 
-            // spawn ball if two players
+            // Spawn pi³ki, gdy s¹ dwaj gracze
             if (numPlayers == 2)
             {
-                ball = Instantiate(spawnPrefabs.Find(prefab => prefab.name == "Ball"));
+                ball = Instantiate(spawnPrefabs.Find(p => p.name == "Ball"));
                 NetworkServer.Spawn(ball);
+
+                // Reset stanu meczu
+                MatchController.instance.ResetMatch(numPlayers);
             }
         }
 
         public override void OnServerDisconnect(NetworkConnectionToClient conn)
         {
-            // destroy ball
             if (ball != null)
                 NetworkServer.Destroy(ball);
 
-            // call base functionality (actually destroys the player)
             base.OnServerDisconnect(conn);
+        }
+
+        // Wyjœcie do lobby
+        public void OnExitClicked()
+        {
+            if (NetworkServer.active)
+                StopHost();
+            else
+                StopClient();
         }
     }
 }

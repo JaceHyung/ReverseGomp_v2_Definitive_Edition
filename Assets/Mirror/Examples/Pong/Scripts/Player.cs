@@ -51,8 +51,7 @@ namespace Mirror.Examples.Pong
 
         void Die()
         {
-            Debug.Log("Player died");
-
+            MatchController.instance.PlayerDied(gameObject);
             NetworkServer.Destroy(gameObject);
 
         }
